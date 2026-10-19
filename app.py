@@ -2,24 +2,38 @@ from flask import Flask, request, jsonify
 from transformers import AutoTokenizer, pipeline
 from optimum.onnxruntime import ORTModelForSequenceClassification
 
+print("STEP 1: Imports completed", flush=True)
+
 app = Flask(__name__)
+
+print("STEP 2: Flask started", flush=True)
 
 CATEGORIES = ["Tools", "Electronics", "Books", "Sports", "Other"]
 
 MODEL_NAME = "cross-encoder/nli-MiniLM2-L6-H768"
 
+print("STEP 3: Loading tokenizer", flush=True)
+
 tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
+
+print("STEP 4: Tokenizer loaded", flush=True)
+print("STEP 5: Loading ONNX model", flush=True)
 
 model = ORTModelForSequenceClassification.from_pretrained(
     MODEL_NAME,
     file_name="onnx/model_quint8_avx2.onnx"
 )
 
+print("STEP 6: ONNX model loaded", flush=True)
+print("STEP 7: Creating classifier", flush=True)
+
 classifier = pipeline(
     "zero-shot-classification",
     model=model,
     tokenizer=tokenizer
 )
+
+print("STEP 8: Classifier ready", flush=True)
 
 
 @app.route("/classify", methods=["POST"])
