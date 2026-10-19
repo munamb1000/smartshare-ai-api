@@ -5,13 +5,14 @@ from optimum.onnxruntime import ORTModelForSequenceClassification
 app = Flask(__name__)
 
 CATEGORIES = ["Tools", "Electronics", "Books", "Sports", "Other"]
+
 MODEL_NAME = "cross-encoder/nli-MiniLM2-L6-H768"
 
 tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
 
 model = ORTModelForSequenceClassification.from_pretrained(
     MODEL_NAME,
-    export=True
+    file_name="onnx/model_quint8_avx2.onnx"
 )
 
 classifier = pipeline(
