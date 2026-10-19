@@ -3,11 +3,9 @@ import os
 import requests
 
 app = Flask(__name__)
-HF_TOKEN = os.environ.get("HF_TOKEN")
-
-HF_API_URL = "https://router.huggingface.co/hf-inference/models/facebook/bart-large-mnli"
 
 CATEGORIES = ["Tools", "Electronics", "Books", "Sports", "Other"]
+MODEL_NAME = "cross-encoder/nli-MiniLM2-L6-H768"
 @app.route("/classify", methods=["POST"])
 def classify():
     data = request.get_json()
@@ -19,31 +17,17 @@ def classify():
     if not text:
         return jsonify({"error": "Title or description is required"}), 400
 
-    headers = {
-        "Authorization": f"Bearer {HF_TOKEN}"
-    }
+    from transformers import pipeline
 
-    payload = {
-        "inputs": text,
-        "parameters": {
-            "candidate_labels": CATEGORIES
-        }
-    }
-
-    response = requests.post(
-        HF_API_URL,
-        headers=headers,
-        json=payload,
-        timeout=60
+    classifier = pipeline(
+        "zero-shot-classification",
+        model=MODEL_NAME
     )
 
-    if response.status_code != 200:
-        return jsonify({
-            "error": "AI classification failed",
-            "details": response.text
-        }), response.status_code
-
-    result = response.json()
+    result = classifier(
+        text,
+        candidate_labels=CATEGORIES
+    )
 
     return jsonify({
         "category": result["labels"][0],
