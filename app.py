@@ -21,7 +21,7 @@ print("STEP 5: Loading ONNX model", flush=True)
 
 model = ORTModelForSequenceClassification.from_pretrained(
     MODEL_NAME,
-    file_name="onnx/model_quint8_avx2.onnx"
+file_name="onnx/model_quint8_avx512.onnx"
 )
 
 print("STEP 6: ONNX model loaded", flush=True)
