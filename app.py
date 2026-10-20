@@ -12,7 +12,9 @@ tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
 
 model = ORTModelForSequenceClassification.from_pretrained(
     MODEL_NAME,
-file_name="onnx/model_uint8.onnx")
+    subfolder="onnx",
+    file_name="model_uint8.onnx"
+)
 
 classifier = pipeline(
     "zero-shot-classification",
