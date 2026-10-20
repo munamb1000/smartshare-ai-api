@@ -8,19 +8,28 @@ CATEGORIES = ["Tools", "Electronics", "Books", "Sports", "Other"]
 
 MODEL_NAME = "Xenova/mobilebert-uncased-mnli"
 
-tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
+classifier = None
 
-model = ORTModelForSequenceClassification.from_pretrained(
-    MODEL_NAME,
-    subfolder="onnx",
-    file_name="model_uint8.onnx"
-)
 
-classifier = pipeline(
-    "zero-shot-classification",
-    model=model,
-    tokenizer=tokenizer
-)
+def get_classifier():
+    global classifier
+
+    if classifier is None:
+        tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
+
+        model = ORTModelForSequenceClassification.from_pretrained(
+            MODEL_NAME,
+            subfolder="onnx",
+            file_name="model_uint8.onnx"
+        )
+
+        classifier = pipeline(
+            "zero-shot-classification",
+            model=model,
+            tokenizer=tokenizer
+        )
+
+    return classifier
 
 
 @app.route("/classify", methods=["POST"])
@@ -36,7 +45,9 @@ def classify():
             "error": "Title or description is required"
         }), 400
 
-    result = classifier(
+    ai_classifier = get_classifier()
+
+    result = ai_classifier(
         text,
         candidate_labels=CATEGORIES
     )
